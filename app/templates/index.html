@@ -41,7 +41,7 @@
                             <a class="btn btn-warning" href="{{ url_for('editar_pelicula_form', pelicula_id=p.id) }}">Editar</a>
                             <form class="inline" method="POST"
                                   action="{{ url_for('borrar_pelicula', pelicula_id=p.id) }}"
-                                  onsubmit="return confirm('Seguro que quieres borrar &quot;{{ p.titulo }}&quot;?');">
+                                  onsubmit="return pedirConfirmacion(this, 'Borrar pelicula', 'Se eliminara &laquo;{{ p.titulo }}&raquo; del catalogo. Esta accion no se puede deshacer.');">
                                 <button class="btn btn-danger" type="submit">Borrar</button>
                             </form>
                         </td>

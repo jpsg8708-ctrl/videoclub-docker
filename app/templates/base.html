@@ -88,6 +88,52 @@
         .detail-grid dt { font-weight: 600; color: #555; }
         .detail-grid dd { margin: 0; }
         footer { text-align: center; color: #999; padding: 16px; font-size: 0.85em; }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(44, 62, 80, 0.55);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .modal-overlay.is-open {
+            display: flex;
+            animation: modalFade 0.15s ease-out;
+        }
+        .modal-box {
+            background: white;
+            padding: 24px 24px 20px;
+            border-radius: 8px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+            max-width: 420px;
+            width: 100%;
+            animation: modalSlide 0.18s ease-out;
+        }
+        .modal-box h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 1.15em;
+        }
+        .modal-box p {
+            margin: 0 0 20px 0;
+            color: #555;
+            line-height: 1.5;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        @keyframes modalFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -106,5 +152,66 @@
         {% block content %}{% endblock %}
     </main>
     <footer>&copy; Videoclub</footer>
+
+    <div id="modal-confirmar" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+        <div class="modal-box">
+            <h3 id="modal-titulo">Confirmar accion</h3>
+            <p id="modal-mensaje">Esta accion no se puede deshacer.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="modal-cancelar">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="modal-aceptar">Borrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var modal = document.getElementById('modal-confirmar');
+            var titleEl = document.getElementById('modal-titulo');
+            var msgEl = document.getElementById('modal-mensaje');
+            var btnAceptar = document.getElementById('modal-aceptar');
+            var btnCancelar = document.getElementById('modal-cancelar');
+            var formularioPendiente = null;
+
+            function abrir() {
+                modal.classList.add('is-open');
+                document.body.style.overflow = 'hidden';
+                btnAceptar.focus();
+            }
+
+            function cerrar() {
+                modal.classList.remove('is-open');
+                document.body.style.overflow = '';
+                formularioPendiente = null;
+            }
+
+            window.pedirConfirmacion = function (form, titulo, mensaje, textoBoton) {
+                formularioPendiente = form;
+                titleEl.textContent = titulo || 'Confirmar accion';
+                msgEl.textContent = mensaje || 'Esta accion no se puede deshacer.';
+                btnAceptar.textContent = textoBoton || 'Borrar';
+                abrir();
+                return false;
+            };
+
+            btnAceptar.addEventListener('click', function () {
+                if (formularioPendiente) {
+                    var f = formularioPendiente;
+                    cerrar();
+                    f.submit();
+                }
+            });
+
+            btnCancelar.addEventListener('click', cerrar);
+
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) cerrar();
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && modal.classList.contains('is-open')) cerrar();
+            });
+        })();
+    </script>
 </body>
 </html>
