@@ -1,0 +1,51 @@
+services:
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: videoclub
+      MYSQL_USER: videoclub
+      MYSQL_PASSWORD: videoclub123
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - videoclub-net
+    restart: unless-stopped
+
+  app:
+    build: ./app
+    image: videoclub-app:1.0
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: videoclub
+      DB_PASSWORD: videoclub123
+      DB_NAME: videoclub
+      SECRET_KEY: clave-super-secreta
+    depends_on:
+      - db
+    networks:
+      - videoclub-net
+    restart: unless-stopped
+
+  nginx:
+    build: ./nginx
+    image: videoclub-nginx:1.0
+    ports:
+      - "8080:8080"
+    depends_on:
+      - app
+    networks:
+      - videoclub-net
+    restart: unless-stopped
+
+volumes:
+  db_data:
+
+networks:
+  videoclub-net:
+    driver: bridge

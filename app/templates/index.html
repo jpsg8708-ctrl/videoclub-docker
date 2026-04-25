@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Listado - Videoclub{% endblock %}
+{% block content %}
+    <h2>Catalogo de peliculas</h2>
+    <p><a class="btn btn-success" href="{{ url_for('nueva_pelicula') }}">+ Nueva pelicula</a></p>
+
+    {% if error %}
+        <div class="flash flash-error">{{ error }}</div>
+    {% endif %}
+
+    {% if peliculas %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Titulo</th>
+                    <th>Director</th>
+                    <th>Anio</th>
+                    <th>Genero</th>
+                    <th>Stock</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in peliculas %}
+                    <tr>
+                        <td>{{ p.id }}</td>
+                        <td><strong>{{ p.titulo }}</strong></td>
+                        <td>{{ p.director or '-' }}</td>
+                        <td>{{ p.anio or '-' }}</td>
+                        <td>{{ p.genero or '-' }}</td>
+                        <td>
+                            {% if p.stock > 0 %}
+                                <span class="stock-ok">{{ p.stock }}</span>
+                            {% else %}
+                                <span class="stock-low">0</span>
+                            {% endif %}
+                        </td>
+                        <td class="actions">
+                            <a class="btn btn-primary" href="{{ url_for('detalle_pelicula', pelicula_id=p.id) }}">Ver</a>
+                            <a class="btn btn-warning" href="{{ url_for('editar_pelicula_form', pelicula_id=p.id) }}">Editar</a>
+                            <form class="inline" method="POST"
+                                  action="{{ url_for('borrar_pelicula', pelicula_id=p.id) }}"
+                                  onsubmit="return confirm('Seguro que quieres borrar &quot;{{ p.titulo }}&quot;?');">
+                                <button class="btn btn-danger" type="submit">Borrar</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty">
+            <p>No hay peliculas en el catalogo.</p>
+            <p><a class="btn btn-success" href="{{ url_for('nueva_pelicula') }}">Crear la primera</a></p>
+        </div>
+    {% endif %}
+{% endblock %}
