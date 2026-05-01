@@ -36,32 +36,14 @@ Los tres servicios comparten una red interna (`videoclub-net`) y se comunican po
 
 ### Persistencia
 
-El contenedor `db` monta un volumen Docker nombrado (`db_data`) sobre `/var/lib/mysql`. Los datos sobreviven a reinicios y a `docker compose down`. Para borrarlos explicitamente:
+El contenedor `db` monta un volumen Docker nombrado (`db_data`) sobre `/var/lib/mysql`. Los datos sobreviven a reinicios y a `docker compose down`.
 
-```bash
-docker compose down -v
-```
+### Puertos
 
----
-
-## Funcionalidades (CRUD)
-
-La entidad principal es **pelicula**, con los campos: id, titulo, director, anio, genero, stock, descripcion.
-
-| Metodo | Ruta                                 | Operacion                      |
-| ------ | ------------------------------------ | ------------------------------ |
-| GET    | `/`                                  | Listado de peliculas           |
-| GET    | `/pelicula/new`                      | Formulario de creacion         |
-| POST   | `/pelicula`                          | Crear pelicula                 |
-| GET    | `/pelicula/<id>`                     | Detalle                        |
-| GET    | `/pelicula/<id>/edit`                | Formulario de edicion          |
-| POST   | `/pelicula/<id>/edit`                | Actualizar pelicula            |
-| POST   | `/pelicula/<id>/delete`              | Borrar pelicula                |
-| POST   | `/pelicula/<id>/alquilar`            | Decrementar stock (alquilar)   |
-| POST   | `/pelicula/<id>/devolver`            | Incrementar stock (devolver)   |
-| GET    | `/healthz`                           | Health check (JSON)            |
-
-MySQL se inicializa con el esquema y 6 peliculas de ejemplo la primera vez que arranca, leyendo el script de `mysql-init/01-schema.sql`.
+- **Puerto principal:** `8080` — acceso a la aplicación a través de Nginx.
+- Puertos internos (no requieren acceso directo):
+  - `5000` — Flask/Gunicorn (solo accesible dentro de la red Docker).
+  - `3306` — MySQL (solo accesible dentro de la red Docker).
 
 ---
 
@@ -89,26 +71,4 @@ videoclub-docker/
 |-- README.md
 ```
 
----
 
-## Comandos utiles
-
-```bash
-# Ver logs en tiempo real
-docker compose logs -f
-
-# Logs solo de la app
-docker compose logs -f app
-
-# Parar (contenedores paran; datos de MySQL se conservan)
-docker compose down
-
-# Parar y borrar datos (resetea MySQL)
-docker compose down -v
-
-# Reconstruir tras cambios de codigo
-docker compose up -d --build
-
-# Entrar a la base de datos
-docker compose exec db mysql -uvideoclub -pvideoclub123 videoclub
-```
